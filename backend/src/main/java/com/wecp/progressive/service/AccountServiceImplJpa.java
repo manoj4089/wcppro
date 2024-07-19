@@ -1,92 +1,87 @@
 package com.wecp.progressive.service;
 
-import java.sql.SQLException;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.wecp.progressive.entity.Accounts;
+import com.wecp.progressive.exception.AccountNotFoundException;
 import com.wecp.progressive.repository.AccountRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+import java.sql.SQLException;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+
+@Service
 public class AccountServiceImplJpa implements AccountService{
-    @Autowired
+
     private AccountRepository accountRepository;
+    @Autowired
+    public AccountServiceImplJpa(AccountRepository accountRepository) {
+        this.accountRepository = accountRepository;
+    }
+
     @Override
     public List<Accounts> getAllAccounts() throws SQLException {
-        return  accountRepository.findAll();
-        // TODO Auto-generated method stub
-    //    throw new UnsupportedOperationException("Unimplemented method 'getAllAccounts'");
+        return accountRepository.findAll();
     }
 
     @Override
-    public List<Accounts> getAccountsByUser(int userId)  throws SQLException{
-       return (List<Accounts>) accountRepository.findById(userId).get();
-        
-        // TODO Auto-generated method stub
-       // throw new UnsupportedOperationException("Unimplemented method 'getAccountsByUser'");
+    public List<Accounts> getAccountsByUser(int customerId) throws SQLException {
+        return accountRepository.getAccountsByCustomerCustomerId(customerId);
     }
 
     @Override
-    public Accounts getAccountById(int accountId) throws SQLException {
-        return accountRepository.findById(accountId).get();
-        // TODO Auto-generated method stub
-       // throw new UnsupportedOperationException("Unimplemented method 'getAccountById'");
+    public Accounts getAccountById(int accountId) {
+        Optional<Accounts> accounts = accountRepository.findById(accountId);
+        if (accounts.isPresent()) {
+            return accounts.get();
+        }
+        else {
+            throw new AccountNotFoundException("No accounts found linked with this accountId");
+        }
     }
 
     @Override
-    public int addAccount(Accounts accounts) throws SQLException {
-         accountRepository.save(accounts);
-        return accounts.getAccountId();
-      //  return  accountRepository.save(accounts);
-        
-        
-         
-        // TODO Auto-generated method stub
-       // throw new UnsupportedOperationException("Unimplemented method 'addAccount'");
+    public int addAccount(Accounts accounts) {
+        return accountRepository.save(accounts).getAccountId();
     }
 
     @Override
-    public void updateAccount(Accounts accounts) throws SQLException {
+    public void updateAccount(Accounts accounts) {
         accountRepository.save(accounts);
-        // TODO Auto-generated method stub
-       // throw new UnsupportedOperationException("Unimplemented method 'updateAccount'");
     }
 
     @Override
-    public void deleteAccount(int accountId) throws SQLException {
+    public void deleteAccount(int accountId) {
         accountRepository.deleteById(accountId);
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteAccount'");
     }
 
     @Override
     public List<Accounts> getAllAccountsSortedByBalance() throws SQLException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAllAccountsSortedByBalance'");
+        List<Accounts> sortedAccounts = getAllAccounts();
+        sortedAccounts.sort(Comparator.comparingDouble(Accounts::getBalance)); // Sort by account balance
+        return sortedAccounts;
     }
 
+    // Do not implement these methods
     @Override
     public List<Accounts> getAllAccountsFromArrayList() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAllAccountsFromArrayList'");
+        return null;
     }
 
     @Override
     public List<Accounts> addAccountToArrayList(Accounts accounts) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addAccountToArrayList'");
+        return null;
     }
 
     @Override
     public List<Accounts> getAllAccountsSortedByBalanceFromArrayList() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAllAccountsSortedByBalanceFromArrayList'");
+        return null;
     }
 
     @Override
     public void emptyArrayList() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'emptyArrayList'");
+
     }
-    
 }
